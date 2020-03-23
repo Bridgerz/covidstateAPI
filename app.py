@@ -17,7 +17,7 @@ states = []
 def updateData():
     data = requests.get("https://corona.lmao.ninja/historical").json()
     for dict in data:
-        if dict['country'] == "usa":
+        if dict['country'] == "usa" and not "," in dict['province'] :
             statesData.append(dict)
             states.append(dict['province'])
 
@@ -25,7 +25,7 @@ app.apscheduler.add_job(id="refresh", func=updateData, trigger='interval', hours
 
 data = requests.get("https://corona.lmao.ninja/historical").json()
 for dict in data:
-    if dict['country'] == "usa":
+    if dict['country'] == "usa" and not "," in dict['province'] :
         statesData.append(dict)
         states.append(dict['province'])
 
