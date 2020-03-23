@@ -3,8 +3,10 @@ import requests
 from flask_apscheduler import APScheduler
 from datetime import datetime
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
