@@ -4,6 +4,7 @@ from flask_apscheduler import APScheduler
 from datetime import datetime
 import os
 from flask_cors import CORS
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -11,23 +12,27 @@ scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
 
-statesData = []
+statesData = {}
 states = []
 
+# git push heroku master
+# heroku ps:scale web=1
+# heroku logs --tail
+
 def updateData():
-    data = requests.get("https://corona.lmao.ninja/historical").json()
+    data = requests.get("https://covidtracking.com/api/states/daily").json()
     for dict in data:
-        if dict['country'] == "usa" and not "," in dict['province'] :
-            statesData.append(dict)
-            states.append(dict['province'])
+        if dict['state'] not in states :
+            states.append(dict['state'])
+        if dict['state'] not in statesData:
+            data = '"' + str(dict['state']) + '" :' + str({ dict['date']: dict['positive']})
+            statesData[dict['state']] = {dict['date']: dict['positive']}
+        elif dict['date'] not in statesData[dict['state']]:
+            statesData[dict['state']][dict['date']] = dict['positive']
 
 app.apscheduler.add_job(id="refresh", func=updateData, trigger='interval', hours=1)
 
-data = requests.get("https://corona.lmao.ninja/historical").json()
-for dict in data:
-    if dict['country'] == "usa" and not "," in dict['province'] :
-        statesData.append(dict)
-        states.append(dict['province'])
+updateData()
 
 @app.route("/")
 def index():
@@ -39,10 +44,7 @@ def returnStates():
 
 @app.route("/state/<string:state>")
 def returnState(state):
-    for dict in statesData:
-        if dict['province'] == state:
-            return jsonify(dict)
-    return jsonify([])
+    return jsonify(statesData[state.upper()])
 
 # @app.route("/state/<string: state>")
 # def state(state):
