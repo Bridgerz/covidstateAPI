@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 import requests
 from flask_apscheduler import APScheduler
-from datetime import datetime
+from datetime import datetime, date, timedelta
 import os
 from flask_cors import CORS
 import json
@@ -18,17 +18,34 @@ states = []
 # git push heroku master
 # heroku ps:scale web=1
 # heroku logs --tail
+# source env/bin/activate
 
 def updateData():
+    today = date.today()
+    firstDay = date(2020, 3, 3)
+    delta = today - firstDay
+    days = delta.days
+
     data = requests.get("https://covidtracking.com/api/states/daily").json()
     for dict in data:
         if dict['state'] not in states :
             states.append(dict['state'])
         if dict['state'] not in statesData:
-            data = '"' + str(dict['state']) + '" :' + str({ dict['date']: dict['positive']})
-            statesData[dict['state']] = {dict['date']: dict['positive']}
-        elif dict['date'] not in statesData[dict['state']]:
-            statesData[dict['state']][dict['date']] = dict['positive']
+            empty = {}
+            for x in range(days):
+                past = datetime.now() - timedelta(x)
+                year = str(past.year)
+                month = str(past.month)
+                day = str(past.day)
+                if len(str(past.month)) == 1:
+                    month = str(0) + month
+                if len(str(past.day)) == 1:
+                    day = str(0) + day
+                pastStr = str(past.year) + month + day
+                empty[pastStr] = 0
+            statesData[dict['state']] = empty
+
+        statesData[dict['state']][str(dict['date'])] = dict['positive']
 
 app.apscheduler.add_job(id="refresh", func=updateData, trigger='interval', hours=1)
 
