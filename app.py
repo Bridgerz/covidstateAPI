@@ -25,7 +25,7 @@ def updateData():
     firstDay = date(2020, 3, 3)
     delta = today - firstDay
     days = delta.days
-
+    print(datetime.now())
     data = requests.get("https://covidtracking.com/api/states/daily").json()
     for dict in data:
         if dict['state'] not in states :
