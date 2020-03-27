@@ -25,7 +25,6 @@ def updateData():
     firstDay = date(2020, 3, 3)
     delta = today - firstDay
     days = delta.days
-    print(datetime.now())
     data = requests.get("https://covidtracking.com/api/states/daily").json()
     for dict in data:
         if dict['state'] not in states :
@@ -33,7 +32,7 @@ def updateData():
         if dict['state'] not in statesData:
             empty = {}
             for x in range(days):
-                past = datetime.now() - timedelta(x)
+                past = datetime.now() - timedelta(x+1)
                 year = str(past.year)
                 month = str(past.month)
                 day = str(past.day)
@@ -43,6 +42,7 @@ def updateData():
                     day = str(0) + day
                 pastStr = str(past.year) + month + day
                 empty[pastStr] = 0
+            
             statesData[dict['state']] = empty
 
         statesData[dict['state']][str(dict['date'])] = dict['positive']
