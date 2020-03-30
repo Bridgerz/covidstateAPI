@@ -47,6 +47,23 @@ def updateData():
 
         statesData[dict['state']][str(dict['date'])] = dict['positive']
 
+
+def getTopTen():
+    def getPos(res):
+        print(res['positive'])
+        if res['positive'] == None:
+            return 0
+        return res['positive']
+
+    res = requests.get("https://covidtracking.com/api/states").json()
+    res.sort(key=lambda x: getPos(x))
+    last = res[(len(res) - 10):len(res)]
+    res = {}
+    for dict in last:
+        res[dict['state']] = dict['positive']
+    return res
+
+
 app.apscheduler.add_job(id="refresh", func=updateData, trigger='interval', hours=1)
 
 updateData()
@@ -63,9 +80,9 @@ def returnStates():
 def returnState(state):
     return jsonify(statesData[state.upper()])
 
-# @app.route("/state/<string: state>")
-# def state(state):
-#     # return that states data
+@app.route("/topten")
+def returnTopTen():
+    return jsonify(getTopTen())
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
