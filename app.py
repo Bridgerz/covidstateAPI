@@ -44,8 +44,8 @@ def updateData():
                 empty[pastStr] = 0
             
             statesData[dict['state']] = empty
-
-        statesData[dict['state']][str(dict['date'])] = dict['positive']
+        if int(dict['date']) >= 20200303:
+            statesData[dict['state']][str(dict['date'])] = dict['positive']
 
 
 def getTopTen():
