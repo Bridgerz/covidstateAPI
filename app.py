@@ -45,12 +45,14 @@ def updateData():
             
             statesData[dict['state']] = empty
         if int(dict['date']) >= 20200303:
-            statesData[dict['state']][str(dict['date'])] = dict['positive']
+            try:
+                statesData[dict['state']][str(dict['date'])] = dict['positive']
+            except:
+                statesData[dict['state']][str(dict['date'])] = 0
 
 
 def getTopTen():
     def getPos(res):
-        print(res['positive'])
         if res['positive'] == None:
             return 0
         return res['positive']
